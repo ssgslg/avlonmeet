@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Avlon Meet – Smart Meeting Records</title>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&family=Playfair+Display:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#0f1923;--ink2:#2c3e50;--muted:#6b7a8d;
+  --teal:#0d7377;--teal2:#14a085;--teal3:#c8f0eb;--teal4:#edfaf8;
+  --gold:#c9a84c;--gold2:#f5e6c0;
+  --red:#e74c3c;--green:#27ae60;
+  --bg:#f3f6f9;--w:#ffffff;--border:#dde5ef;
+  --radius:14px;--shadow:0 4px 28px rgba(13,115,119,.10);--shadow2:0 2px 12px rgba(0,0,0,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+
+#hdr{background:linear-gradient(135deg,#0a2a2b 0%,var(--teal) 60%,#0a4a4d 100%);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 3px 20px rgba(0,0,0,.25);position:sticky;top:0;z-index:50;}
+.hdr-brand{display:flex;align-items:center;gap:10px;}
+.hdr-brand .logo{width:34px;height:34px;background:var(--gold);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.hdr-brand h1{font-family:'Playfair Display',serif;font-size:1.2rem;color:#fff;}
+.hdr-brand h1 span{color:var(--gold);}
+#hdr-nav button{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.85);font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:.82rem;padding:6px 14px;border-radius:7px;cursor:pointer;transition:all .2s;margin-left:4px;}
+#hdr-nav button:hover,#hdr-nav button.active{background:rgba(255,255,255,.22);color:#fff;}
+.user-chip{background:rgba(255,255,255,.15);color:#fff;border-radius:20px;padding:5px 14px 5px 8px;display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:700;}
+.av{width:26px;height:26px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#0a2a2b;font-weight:900;}
+.btn-logout{background:rgba(231,76,60,.35);border:none;color:#fff;padding:5px 12px;border-radius:7px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;margin-left:8px;}
+
+.page{display:none;padding:24px 28px;max-width:1180px;margin:0 auto;}
+.page.active{display:block;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* LOGIN */
+#loginWrap{min-height:100vh;background:linear-gradient(135deg,#0a2a2b,#0d5c60,#144e52);display:flex;align-items:center;justify-content:center;}
+.login-card{background:#fff;border-radius:22px;padding:44px 40px;width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.login-card .brand{text-align:center;margin-bottom:28px;}
+.login-card .brand .icon{font-size:2.8rem;margin-bottom:6px;}
+.login-card .brand h2{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--teal);}
+
+/* FORMS */
+.ig{margin-bottom:14px;}
+.ig label{display:block;font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.ig input,.ig select,.ig textarea{width:100%;border:2px solid var(--border);border-radius:9px;padding:9px 13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;color:var(--ink);outline:none;transition:border .2s;background:#fff;}
+.ig input:focus,.ig select:focus,.ig textarea:focus{border-color:var(--teal2);}
+.ig textarea{resize:vertical;min-height:70px;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.full{grid-column:1/-1;}
+
+/* BUTTONS */
+.btn{border:none;border-radius:8px;padding:9px 20px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.87rem;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:6px;}
+.btn-teal{background:var(--teal);color:#fff;}.btn-teal:hover{background:#0a5c5f;}
+.btn-gold{background:var(--gold);color:#0a2a2b;}.btn-gold:hover{background:#b8972e;}
+.btn-outline{background:transparent;border:2px solid var(--teal);color:var(--teal);}.btn-outline:hover{background:var(--teal4);}
+.btn-red{background:var(--red);color:#fff;}
+.btn-green{background:var(--green);color:#fff;}.btn-green:hover{background:#219a52;}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--muted);}.btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+.btn-sm{padding:5px 12px;font-size:.78rem;}
+.btn-xs{padding:3px 9px;font-size:.73rem;}
+
+/* CARDS */
+.card{background:var(--w);border-radius:var(--radius);box-shadow:var(--shadow2);padding:22px;}
+.card-title{font-size:.98rem;font-weight:800;color:var(--teal);margin-bottom:16px;display:flex;align-items:center;gap:7px;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.stat{background:var(--w);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow2);border-top:4px solid var(--teal);}
+.stat.gold{border-top-color:var(--gold);}.stat.red{border-top-color:var(--red);}.stat.ink{border-top-color:var(--ink2);}
+.stat-num{font-size:2rem;font-weight:900;line-height:1;color:var(--ink);}
+.stat-lbl{font-size:.73rem;font-weight:700;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.4px;}
+
+/* MEETING CARD */
+.mc{background:var(--w);border-radius:var(--radius);box-shadow:var(--shadow2);border-left:5px solid var(--teal);padding:18px 20px;margin-bottom:12px;cursor:pointer;transition:box-shadow .2s,transform .15s;}
+.mc:hover{box-shadow:var(--shadow);transform:translateY(-1px);}
+.mc-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--ink);font-weight:700;}
+.mc-meta{font-size:.78rem;color:var(--muted);margin-top:3px;display:flex;gap:12px;flex-wrap:wrap;}
+.mc-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.7rem;font-weight:800;}
+.badge-teal{background:var(--teal3);color:var(--teal);}
+.badge-gold{background:var(--gold2);color:#7a5c10;}
+.badge-ink{background:#e8ecf2;color:var(--ink2);}
+.badge-red{background:#fde8e8;color:var(--red);}
+.badge-green{background:#d4edda;color:#155724;}
+.badge-lang{background:#e8f4fd;color:#1a6fa8;}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:linear-gradient(90deg,#0a2a2b,var(--teal));}
+thead th{padding:10px 14px;text-align:left;font-size:.73rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+tbody tr{border-bottom:1px solid #eef2f8;transition:background .15s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--teal4);}
+tbody td{padding:9px 14px;font-size:.85rem;vertical-align:top;}
+
+/* MODALS */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(10,26,27,.6);z-index:200;align-items:center;justify-content:center;padding:16px;overflow-y:auto;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--w);border-radius:18px;width:100%;max-width:800px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;}
+.modal-hd{background:linear-gradient(135deg,#0a2a2b,var(--teal));padding:20px 26px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.modal-hd h3{font-family:'Playfair Display',serif;font-size:1.25rem;color:#fff;}
+.modal-close{background:rgba(255,255,255,.2);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+.modal-body{padding:22px 26px;overflow-y:auto;flex:1;}
+.modal-footer{padding:14px 26px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;background:#fafbfc;border-radius:0 0 18px 18px;flex-shrink:0;}
+
+/* TABS */
+.mtabs{display:flex;gap:3px;margin-bottom:18px;background:#eef2f8;padding:4px;border-radius:9px;width:fit-content;}
+.mtab{padding:6px 16px;border-radius:6px;border:none;background:none;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;color:var(--muted);transition:all .2s;}
+.mtab.active{background:#fff;color:var(--teal);box-shadow:0 2px 8px rgba(0,0,0,.08);}
+
+/* ══════════════════════════════════════
+   SMART FEATURES PANEL
+══════════════════════════════════════ */
+.smart-panel{background:linear-gradient(135deg,#0a2a2b,#0d5055);border-radius:14px;padding:18px;margin-bottom:16px;}
+.smart-panel-title{color:rgba(255,255,255,.7);font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;}
+
+/* VOICE BUTTON */
+.voice-btn{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 16px;cursor:pointer;transition:all .2s;width:100%;margin-bottom:10px;}
+.voice-btn:hover{background:rgba(255,255,255,.18);}
+.voice-btn.recording{background:rgba(231,76,60,.25);border-color:rgba(231,76,60,.6);animation:pulse-border 1s infinite;}
+@keyframes pulse-border{0%,100%{border-color:rgba(231,76,60,.6)}50%{border-color:rgba(231,76,60,1)}}
+.voice-dot{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.4);flex-shrink:0;transition:all .2s;}
+.voice-btn.recording .voice-dot{background:#e74c3c;animation:pulse-dot 1s infinite;}
+@keyframes pulse-dot{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+.voice-btn-text{flex:1;text-align:left;}
+.voice-btn-text .vt1{color:#fff;font-weight:700;font-size:.88rem;}
+.voice-btn-text .vt2{color:rgba(255,255,255,.6);font-size:.75rem;margin-top:1px;}
+.voice-lang-sel{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:6px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;padding:4px 8px;cursor:pointer;outline:none;}
+.voice-lang-sel option{background:#0d7377;color:#fff;}
+
+/* QUICK PHRASES */
+.qp-row{display:flex;flex-wrap:wrap;gap:6px;}
+.qp-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;color:rgba(255,255,255,.9);font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;font-weight:600;padding:5px 12px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.qp-btn:hover{background:rgba(255,255,255,.25);color:#fff;}
+
+/* AI ASSIST */
+.ai-box{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:14px;}
+.ai-box textarea{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.2);border-radius:7px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:.83rem;padding:9px 12px;width:100%;resize:none;outline:none;min-height:72px;margin-bottom:10px;}
+.ai-box textarea::placeholder{color:rgba(255,255,255,.4);}
+.ai-status{font-size:.78rem;color:rgba(255,255,255,.6);margin-top:8px;min-height:18px;}
+
+/* MINUTES EDITOR */
+.min-wrap{border:2px solid var(--border);border-radius:10px;overflow:hidden;}
+.min-toolbar{background:#f5f7fa;padding:7px 10px;border-bottom:1px solid var(--border);display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.min-toolbar button{background:var(--w);border:1px solid var(--border);border-radius:5px;padding:4px 9px;font-size:.75rem;cursor:pointer;color:var(--ink2);font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;transition:all .15s;}
+.min-toolbar button:hover{background:var(--teal4);border-color:var(--teal);color:var(--teal);}
+.min-editor{min-height:160px;padding:12px;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;line-height:1.75;color:var(--ink);}
+.min-editor[contenteditable]:empty::before{content:attr(data-placeholder);color:#aab;}
+.min-live-indicator{display:none;align-items:center;gap:6px;font-size:.75rem;color:var(--red);font-weight:700;padding:5px 10px;background:#fff;border-top:1px solid var(--border);}
+.min-live-indicator.on{display:flex;}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse-dot .8s infinite;}
+
+/* PARTICIPANTS chips */
+.p-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--teal4);border:1px solid var(--teal3);border-radius:20px;padding:3px 10px;font-size:.78rem;font-weight:600;color:var(--teal);}
+.chip-av{width:18px;height:18px;background:var(--teal);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:900;}
+.chip-rm{cursor:pointer;color:var(--teal);margin-left:2px;}.chip-rm:hover{color:var(--red);}
+
+/* ACTION ITEM */
+.ai-item{display:flex;align-items:flex-start;gap:8px;padding:9px 11px;border-radius:7px;background:#fafbfc;border:1px solid var(--border);margin-bottom:7px;}
+.ai-chk{width:17px;height:17px;border:2px solid var(--teal);border-radius:4px;cursor:pointer;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:.68rem;color:var(--teal);}
+.ai-item.done .ai-text{text-decoration:line-through;color:var(--muted);}
+
+/* VIEW */
+.vs h4{font-size:.75rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:5px;margin-top:18px;}
+.vm{background:#fafbfc;border-radius:9px;padding:14px 16px;font-size:.87rem;line-height:1.8;color:var(--ink2);border:1px solid var(--border);white-space:pre-wrap;}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.filter-bar input,.filter-bar select{border:2px solid var(--border);border-radius:8px;padding:7px 13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.86rem;color:var(--ink);outline:none;transition:border .2s;background:#fff;}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--teal2);}
+.filter-bar input{width:240px;}
+
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.sec-hd h2{font-family:'Playfair Display',serif;font-size:1.45rem;color:var(--ink);}
+.sec-hd p{font-size:.8rem;color:var(--muted);margin-top:2px;}
+
+/* TRANSCRIPT PASTE AREA */
+.transcript-area{background:#fafbfc;border:2px dashed var(--border);border-radius:10px;padding:16px;margin-bottom:14px;}
+.transcript-area textarea{width:100%;border:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;resize:none;outline:none;min-height:100px;color:var(--ink2);}
+
+/* TEMPLATE CARDS */
+.tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.tpl-card{border:2px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;}
+.tpl-card:hover{border-color:var(--teal);background:var(--teal4);}
+.tpl-card .tpl-icon{font-size:1.5rem;margin-bottom:6px;}
+.tpl-card .tpl-title{font-weight:700;font-size:.88rem;color:var(--ink);}
+.tpl-card .tpl-desc{font-size:.75rem;color:var(--muted);margin-top:3px;}
+
+/* NOTICE */
+.notice{background:var(--gold2);border-left:4px solid var(--gold);border-radius:8px;padding:10px 14px;font-size:.82rem;color:#7a5c10;font-weight:600;margin-bottom:14px;}
+
+@media(max-width:768px){
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .fg{grid-template-columns:1fr;}.fg3{grid-template-columns:1fr;}
+  #hdr-nav{display:none;}.page{padding:14px;}
+  .filter-bar input{width:100%;}
+  .tpl-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginWrap">
+  <div class="login-card">
+    <div class="brand"><div class="icon">📋</div>
+      <h2>Avlon Meet</h2>
+      <p style="color:var(--muted);font-size:.85rem;margin-top:4px">Smart Meeting Records — Admin Portal</p>
+    </div>
+    <div class="ig"><label>Username</label><input type="text" id="l-user" placeholder="admin" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div class="ig"><label>Password</label><input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <button class="btn btn-teal" style="width:100%;padding:11px;font-size:.92rem;margin-top:4px" onclick="doLogin()">Sign In →</button>
+    <p id="l-err" style="color:var(--red);font-size:.8rem;margin-top:8px;text-align:center"></p>
+    <p style="text-align:center;margin-top:14px"><button onclick="showForgot()" style="background:none;border:none;color:var(--teal);font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;cursor:pointer;text-decoration:underline">Forgot password?</button></p>
+  </div>
+</div>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div id="forgot-wrap" style="display:none;position:fixed;inset:0;background:rgba(10,26,27,.7);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:18px;padding:36px 32px;width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+    <div style="text-align:center;margin-bottom:22px;">
+      <p style="font-size:2rem;margin-bottom:6px;">🔑</p>
+      <h3 style="font-family:'Playfair Display',serif;color:var(--teal);font-size:1.4rem;">Reset Password</h3>
+      <p style="color:var(--muted);font-size:.82rem;margin-top:4px;">Answer the security question to reset</p>
+    </div>
+    <div class="ig"><label>Username</label><input type="text" id="fp-user" placeholder="Enter your username" oninput="fpUserInput()"/></div>
+    <div class="ig"><label>Security Question</label>
+      <div style="background:var(--teal4);border:1px solid var(--teal3);border-radius:8px;padding:10px 13px;font-size:.88rem;color:var(--teal);font-weight:600;margin-bottom:8px;" id="fp-question">Enter username above to see your question</div>
+      <input type="text" id="fp-answer" placeholder="Your answer" oninput="checkSecAnswer()"/>
+    </div>
+    <div id="fp-newpw-area" style="display:none;">
+      <div class="ig"><label>New Password</label><input type="password" id="fp-newpw1" placeholder="Enter new password"/></div>
+      <div class="ig"><label>Confirm New Password</label><input type="password" id="fp-newpw2" placeholder="Repeat new password"/></div>
+    </div>
+    <p id="fp-msg" style="font-size:.8rem;margin-bottom:12px;min-height:18px;text-align:center;"></p>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeForgot()">Cancel</button>
+      <button class="btn btn-teal" style="flex:1;" id="fp-btn" onclick="doReset()">Reset Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <div id="hdr">
+    <div class="hdr-brand">
+      <div class="logo">📋</div>
+      <h1>Avlon <span>Meet</span></h1>
+    </div>
+    <div id="hdr-nav">
+      <button class="active" onclick="nav('dashboard',this)">🏠 Dashboard</button>
+      <button onclick="nav('meetings',this)">📋 Meetings</button>
+      <button onclick="nav('actions',this)">✅ Actions</button>
+      <button onclick="nav('participants',this)">👥 Participants</button>
+      <button onclick="nav('settings',this)">⚙️ Settings</button>
+    </div>
+    <div style="display:flex;align-items:center">
+      <div class="user-chip"><div class="av" id="hdr-av">A</div><span id="hdr-name">Admin</span></div>
+      <button class="btn-logout" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="pg-dashboard" class="page active">
+    <div class="sec-hd">
+      <div><h2>Dashboard</h2><p id="dash-dt"></p></div>
+      <button class="btn btn-teal" onclick="openNewMeeting()">＋ New Meeting</button>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">Total Meetings</div></div>
+      <div class="stat gold"><div class="stat-num" id="s-month">0</div><div class="stat-lbl">This Month</div></div>
+      <div class="stat red"><div class="stat-num" id="s-open">0</div><div class="stat-lbl">Open Actions</div></div>
+      <div class="stat ink"><div class="stat-num" id="s-parts">0</div><div class="stat-lbl">Participants</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:18px">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--ink);margin-bottom:12px">🕐 Recent Meetings</div>
+        <div id="recent-list"></div>
+      </div>
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--ink);margin-bottom:12px">⚡ Open Action Items</div>
+        <div id="dash-actions"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEETINGS -->
+  <div id="pg-meetings" class="page">
+    <div class="sec-hd">
+      <div><h2>All Meetings</h2><p>Complete history of sessions</p></div>
+      <button class="btn btn-teal" onclick="openNewMeeting()">＋ New Meeting</button>
+    </div>
+    <div class="filter-bar">
+      <input type="text" id="srch" placeholder="🔍 Search title, topic, participant…" oninput="renderMeetings()"/>
+      <select id="flt-month" onchange="renderMeetings()"><option value="">All Months</option></select>
+      <select id="flt-lang" onchange="renderMeetings()">
+        <option value="">All Languages</option>
+        <option>English</option><option>Bengali</option><option>Hindi</option>
+        <option>English + Bengali</option><option>English + Hindi</option>
+      </select>
+      <select id="flt-type" onchange="renderMeetings()">
+        <option value="">All Types</option>
+        <option>Faculty Review</option><option>Administrative</option><option>Training</option>
+        <option>Planning</option><option>Emergency</option><option>General</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
+    <div id="meetings-list"></div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div id="pg-actions" class="page">
+    <div class="sec-hd">
+      <div><h2>Action Items</h2><p>Tasks assigned during meetings</p></div>
+      <select id="ai-filter" onchange="renderActionPage()" style="border:2px solid var(--border);border-radius:8px;padding:7px 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.86rem">
+        <option value="open">Open Items</option><option value="done">Completed</option><option value="all">All</option>
+      </select>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Task</th><th>Assigned To</th><th>Due</th><th>Meeting</th><th>Priority</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="actions-tbl"></tbody>
+    </table></div>
+  </div>
+
+  <!-- PARTICIPANTS -->
+  <div id="pg-participants" class="page">
+    <div class="sec-hd">
+      <div><h2>Participants</h2><p>Directory of all meeting attendees</p></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-teal btn-sm" onclick="openAddP()">＋ Add</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportPartsCSV()">⬇ CSV</button>
+      </div>
+    </div>
+    <div class="filter-bar"><input type="text" id="p-srch" placeholder="🔍 Search…" oninput="renderParticipants()"/></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>#</th><th>Name</th><th>Role</th><th>Location</th><th>Meetings</th><th>Last Seen</th><th></th></tr></thead>
+      <tbody id="part-tbl"></tbody>
+    </table></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="pg-settings" class="page">
+    <div class="sec-hd"><div><h2>Settings</h2></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+      <div class="card">
+        <div class="card-title">🔒 Change Password</div>
+        <div class="ig"><label>Current</label><input type="password" id="pw-old"/></div>
+        <div class="ig"><label>New</label><input type="password" id="pw-new"/></div>
+        <div class="ig"><label>Confirm</label><input type="password" id="pw-confirm"/></div>
+        <button class="btn btn-teal btn-sm" onclick="changePass()">Update</button>
+        <p id="pw-msg" style="font-size:.8rem;margin-top:8px"></p>
+      </div>
+      <div class="card">
+        <div class="card-title">👤 Users</div>
+        <div class="tbl-wrap"><table><thead><tr><th>User</th><th>Role</th><th></th></tr></thead><tbody id="users-tbl"></tbody></table></div>
+        <hr style="margin:14px 0;border-color:var(--border)"/>
+        <div style="display:flex;gap:7px">
+          <input type="text" id="nu-u" placeholder="Username" style="flex:1;border:2px solid var(--border);border-radius:7px;padding:7px 11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem"/>
+          <input type="password" id="nu-p" placeholder="Password" style="flex:1;border:2px solid var(--border);border-radius:7px;padding:7px 11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem"/>
+          <button class="btn btn-teal btn-sm" onclick="addUser()">Add</button>
+        </div>
+      </div>
+      <div class="card" style="grid-column:1/-1">
+        <div class="card-title">📍 Office Locations</div>
+        <div id="loc-list" style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px"></div>
+        <div style="display:flex;gap:7px">
+          <input type="text" id="loc-inp" placeholder="Add location…" style="flex:1;border:2px solid var(--border);border-radius:7px;padding:7px 11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem"/>
+          <button class="btn btn-teal btn-sm" onclick="addLoc()">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN MEETING MODAL ═══════════════ -->
+<div id="modal-bg" class="modal-bg">
+  <div class="modal">
+    <div class="modal-hd">
+      <h3 id="modal-title">New Meeting Record</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id"/>
+      <div class="mtabs">
+        <button class="mtab active" id="t0" onclick="mTab(0)">📋 Details</button>
+        <button class="mtab" id="t1" onclick="mTab(1)">👥 Participants</button>
+        <button class="mtab" id="t2" onclick="mTab(2)">📝 Minutes</button>
+        <button class="mtab" id="t3" onclick="mTab(3)">✅ Actions</button>
+      </div>
+
+      <!-- TAB 0: Details -->
+      <div id="tb0">
+        <div class="fg">
+          <div class="ig"><label>Meeting Title *</label><input type="text" id="m-title" placeholder="e.g. Monthly Faculty Review – March 2026"/></div>
+          <div class="ig"><label>Type</label><select id="m-type"><option>Faculty Review</option><option>Administrative</option><option>Training</option><option>Planning</option><option>Emergency</option><option>General</option></select></div>
+          <div class="ig"><label>Date *</label><input type="date" id="m-date"/></div>
+          <div class="ig"><label>Start Time</label><input type="time" id="m-start"/></div>
+          <div class="ig"><label>End Time</label><input type="time" id="m-end"/></div>
+          <div class="ig"><label>Hosted By</label><input type="text" id="m-host"/></div>
+          <div class="ig"><label>Language(s)</label><select id="m-lang"><option>English</option><option>Bengali</option><option>Hindi</option><option>English + Bengali</option><option>English + Hindi</option><option>Bengali + Hindi</option><option>English + Bengali + Hindi</option></select></div>
+          <div class="ig"><label>Platform</label><select id="m-plat"><option>Google Meet</option><option>Zoom</option><option>Teams</option><option>In-Person</option><option>Phone</option></select></div>
+          <div class="ig full"><label>Location / Office</label><select id="m-loc"><option value="">-- Select --</option></select></div>
+        </div>
+        <div class="ig" style="margin-top:4px"><label>Agenda / Topics *</label><textarea id="m-agenda" placeholder="List main agenda items…" style="min-height:90px"></textarea></div>
+        <div style="margin-top:14px">
+          <div style="font-size:.75rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">⚡ Quick Agenda Templates</div>
+          <div class="tpl-grid">
+            <div class="tpl-card" onclick="loadTemplate('faculty')"><div class="tpl-icon">👩‍🏫</div><div class="tpl-title">Faculty Review</div><div class="tpl-desc">Student progress, assignments, attendance</div></div>
+            <div class="tpl-card" onclick="loadTemplate('admin')"><div class="tpl-icon">🏢</div><div class="tpl-title">Administrative</div><div class="tpl-desc">Operations, finances, HR matters</div></div>
+            <div class="tpl-card" onclick="loadTemplate('training')"><div class="tpl-icon">📚</div><div class="tpl-title">Training Session</div><div class="tpl-desc">Skill development, curriculum update</div></div>
+            <div class="tpl-card" onclick="loadTemplate('planning')"><div class="tpl-icon">📅</div><div class="tpl-title">Planning Meeting</div><div class="tpl-desc">Events, schedules, targets</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 1: Participants -->
+      <div id="tb1" style="display:none">
+        <div class="notice">💡 Add each person's name as they join the Google Meet call. Role and location are optional.</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
+          <input type="text" id="pn" placeholder="Full Name *" style="flex:2;min-width:130px;border:2px solid var(--border);border-radius:8px;padding:8px 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.86rem"/>
+          <input type="text" id="pr" placeholder="Role" style="flex:1.2;min-width:100px;border:2px solid var(--border);border-radius:8px;padding:8px 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.86rem"/>
+          <input type="text" id="pl" placeholder="Location / Centre" style="flex:1.5;min-width:110px;border:2px solid var(--border);border-radius:8px;padding:8px 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.86rem"/>
+          <button class="btn btn-teal btn-sm" onclick="addP()">Add</button>
+        </div>
+        <div style="font-size:.76rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Known participants (tap to add):</div>
+        <div id="known-chips" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px"></div>
+        <div style="font-size:.76rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">In this meeting (<span id="p-cnt">0</span>):</div>
+        <div id="meeting-ps"></div>
+      </div>
+
+      <!-- TAB 2: Minutes — SMART PANEL -->
+      <div id="tb2" style="display:none">
+        <!-- Smart Panel -->
+        <div class="smart-panel">
+          <div class="smart-panel-title">🤖 Smart Input Tools — No typing needed!</div>
+
+          <!-- VOICE TO TEXT -->
+          <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
+            <div class="voice-dot" id="vDot"></div>
+            <div class="voice-btn-text">
+              <div class="vt1" id="vBtnLabel">🎤 Tap to Speak — Voice to Text</div>
+              <div class="vt2" id="vBtnSub">Works in English, বাংলা & हिन्दी — just speak!</div>
+            </div>
+            <select class="voice-lang-sel" id="voiceLang" onclick="event.stopPropagation()">
+              <option value="en-IN">English (India)</option>
+              <option value="bn-IN">বাংলা</option>
+              <option value="hi-IN">हिन्दी</option>
+            </select>
+          </button>
+
+          <!-- QUICK PHRASE BUTTONS -->
+          <div style="font-size:.7rem;color:rgba(255,255,255,.55);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;margin-top:2px">Quick Insert Phrases:</div>
+          <div class="qp-row" id="qp-row"></div>
+
+          <!-- AI SUMMARY -->
+          <div style="margin-top:14px">
+            <div style="font-size:.7rem;color:rgba(255,255,255,.55);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">🤖 AI Smart Summary — Paste rough notes, get clean minutes:</div>
+            <div class="ai-box">
+              <textarea id="ai-raw" placeholder="Paste raw/rough notes, voice transcript, or scattered points here… AI will convert to structured meeting minutes in seconds."></textarea>
+              <div style="display:flex;gap:8px;align-items:center">
+                <button class="btn btn-gold btn-sm" onclick="aiSummarize()">✨ Generate Minutes</button>
+                <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.2)" onclick="insertEngTemplate()">📄 EN Template</button>
+                <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.2)" onclick="insertBnTemplate()">বাংলা Template</button>
+              </div>
+              <div class="ai-status" id="ai-status"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live recording indicator -->
+        <div class="min-live-indicator" id="liveInd">
+          <div class="live-dot"></div>
+          <span id="liveText">Listening… speak now</span>
+        </div>
+
+        <!-- MINUTES EDITOR -->
+        <div class="min-wrap">
+          <div class="min-toolbar">
+            <button onclick="fmt('bold')"><b>B</b></button>
+            <button onclick="fmt('italic')"><i>I</i></button>
+            <button onclick="fmt('underline')"><u>U</u></button>
+            <button onclick="ins('• ')">• Bullet</button>
+            <button onclick="ins('→ ')">→ Action</button>
+            <button onclick="ins('⚠ ')">⚠ Note</button>
+            <button onclick="ins('✅ ')">✅ Done</button>
+            <button onclick="insTime()">🕐 Time</button>
+            <button onclick="clearEditor()" style="margin-left:auto;color:var(--red)">🗑 Clear</button>
+          </div>
+          <div class="min-editor" id="min-ed" contenteditable="true" data-placeholder="Minutes will appear here as you speak or type… supports English, বাংলা, हिन्दी"></div>
+        </div>
+        <div style="font-size:.75rem;color:var(--muted);margin-top:7px">💡 Switch your keyboard language at any time — the editor accepts all scripts.</div>
+      </div>
+
+      <!-- TAB 3: Action Items -->
+      <div id="tb3" style="display:none">
+        <div style="margin-bottom:14px">
+          <div class="fg">
+            <div class="ig"><label>Task *</label><input type="text" id="at" placeholder="What needs to be done?"/></div>
+            <div class="ig"><label>Assigned To</label><input type="text" id="aa" placeholder="Person responsible"/></div>
+            <div class="ig"><label>Due Date</label><input type="date" id="ad"/></div>
+            <div class="ig"><label>Priority</label><select id="ap"><option>High</option><option selected>Medium</option><option>Low</option></select></div>
+          </div>
+          <button class="btn btn-teal btn-sm" onclick="addAction()">+ Add Task</button>
+        </div>
+        <div id="action-list"></div>
+
+        <!-- Quick action buttons -->
+        <div style="margin-top:14px">
+          <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">⚡ Common Action Templates:</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <button class="btn btn-ghost btn-xs" onclick="quickAction('Send meeting minutes to all participants')">Send minutes to all</button>
+            <button class="btn btn-ghost btn-xs" onclick="quickAction('Follow up on pending assignments')">Follow up assignments</button>
+            <button class="btn btn-ghost btn-xs" onclick="quickAction('Share examination schedule with all centres')">Share exam schedule</button>
+            <button class="btn btn-ghost btn-xs" onclick="quickAction('Prepare attendance report')">Attendance report</button>
+            <button class="btn btn-ghost btn-xs" onclick="quickAction('Update student records')">Update student records</button>
+            <button class="btn btn-ghost btn-xs" onclick="quickAction('Confirm next meeting date and time')">Confirm next meeting</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-teal" onclick="saveMeeting()">💾 Save Meeting Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW MEETING -->
+<div id="view-bg" style="display:none;position:fixed;inset:0;background:rgba(10,26,27,.6);z-index:200;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto">
+  <div style="background:#fff;border-radius:18px;width:100%;max-width:800px;box-shadow:0 20px 60px rgba(0,0,0,.3);margin:auto">
+    <div style="background:linear-gradient(135deg,#0a2a2b,var(--teal));padding:20px 26px;border-radius:18px 18px 0 0;display:flex;align-items:flex-start;justify-content:space-between">
+      <div><div id="vm-title" style="font-family:'Playfair Display',serif;font-size:1.3rem;color:#fff"></div>
+      <div id="vm-meta" style="font-size:.8rem;color:rgba(255,255,255,.7);margin-top:4px"></div></div>
+      <div style="display:flex;gap:7px;align-items:center">
+        <button class="btn btn-gold btn-sm" id="vm-edit-btn">✏️ Edit</button>
+        <button onclick="window.print()" class="btn btn-sm" style="background:rgba(255,255,255,.15);color:#fff">🖨</button>
+        <button onclick="closeView()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer">✕</button>
+      </div>
+    </div>
+    <div id="vm-body" style="padding:24px;overflow-y:auto;max-height:75vh"></div>
+  </div>
+</div>
+
+<!-- ADD PARTICIPANT -->
+<div id="ap-bg" style="display:none;position:fixed;inset:0;background:rgba(10,26,27,.6);z-index:300;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:26px;width:420px;box-shadow:0 12px 40px rgba(0,0,0,.25)">
+    <h3 style="font-family:'Playfair Display',serif;color:var(--teal);margin-bottom:18px">Add to Directory</h3>
+    <div class="ig"><label>Full Name *</label><input type="text" id="ap-n"/></div>
+    <div class="ig"><label>Role</label><input type="text" id="ap-r" placeholder="Faculty, Admin…"/></div>
+    <div class="ig"><label>Location</label><input type="text" id="ap-l"/></div>
+    <div class="ig"><label>Email</label><input type="email" id="ap-e"/></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('ap-bg').style.display='none'">Cancel</button>
+      <button class="btn btn-teal btn-sm" onclick="savePart()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════ DATA ════════
+let DB = {
+  users:[{u:'admin',p:'admin123',role:'Admin',secQ:'What is the name of your office city?',secA:'siliguri'}],
+  locations:['Main Office – Siliguri','Kolkata Centre','Asansol Centre','Durgapur Centre','North Bengal Campus','Online'],
+  participants:[],meetings:[],nextMId:1,nextPId:1
+};
+let me=null, EM=null, recognition=null, isRecording=false;
+
+// ════════ AUTH ════════
+function doLogin(){
+  const u=document.getElementById('l-user').value.trim();
+  const p=document.getElementById('l-pass').value;
+  // Always re-read from DB so password changes take effect immediately
+  const f=DB.users.find(x=>x.u===u&&x.p===p);
+  if(!f){document.getElementById('l-err').textContent='Invalid username or password.';return;}
+  me=f;
+  document.getElementById('loginWrap').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('hdr-name').textContent=f.u;
+  document.getElementById('hdr-av').textContent=f.u[0].toUpperCase();
+  document.getElementById('dash-dt').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  populateLocSel(); renderDashboard(); renderUserTable(); renderLocList(); renderSecuritySection();
+}
+function doLogout(){
+  me=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('loginWrap').style.display='flex';
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+  document.getElementById('l-err').textContent='';
+}
+// ════════ FORGOT PASSWORD ════════
+function showForgot(){
+  document.getElementById('fp-user').value='';
+  document.getElementById('fp-answer').value='';
+  document.getElementById('fp-newpw1').value='';
+  document.getElementById('fp-newpw2').value='';
+  document.getElementById('fp-msg').textContent='';
+  document.getElementById('fp-newpw-area').style.display='none';
+  document.getElementById('fp-question').textContent='Enter your username above to load security question';
+  document.getElementById('forgot-wrap').style.display='flex';
+}
+function closeForgot(){document.getElementById('forgot-wrap').style.display='none';}
+function fpUserInput(){
+  const uname=document.getElementById('fp-user').value.trim();
+  const u=DB.users.find(x=>x.u===uname);
+  const q=document.getElementById('fp-question');
+  if(u&&u.secQ){q.textContent=u.secQ;}
+  else if(u&&!u.secQ){q.textContent='No security question set for this account. Contact admin.';}
+  else{q.textContent='Username not found.';}
+  document.getElementById('fp-answer').value='';
+  document.getElementById('fp-newpw-area').style.display='none';
+  document.getElementById('fp-msg').textContent='';
+}
+function checkSecAnswer(){
+  const u=DB.users.find(x=>x.u===document.getElementById('fp-user').value.trim());
+  if(!u||!u.secQ)return;
+  const ans=document.getElementById('fp-answer').value.trim().toLowerCase();
+  if(ans&&u.secA&&ans===u.secA.toLowerCase()){
+    document.getElementById('fp-newpw-area').style.display='block';
+    document.getElementById('fp-msg').style.color='var(--teal)';
+    document.getElementById('fp-msg').textContent='Correct! Now enter your new password.';
+  } else {
+    document.getElementById('fp-newpw-area').style.display='none';
+    document.getElementById('fp-msg').textContent='';
+  }
+}
+function doReset(){
+  const uname=document.getElementById('fp-user').value.trim();
+  const u=DB.users.find(x=>x.u===uname);
+  const msg=document.getElementById('fp-msg');
+  if(!u){msg.style.color='var(--red)';msg.textContent='Username not found.';return;}
+  if(!u.secQ){msg.style.color='var(--red)';msg.textContent='No security question set.';return;}
+  const ans=document.getElementById('fp-answer').value.trim().toLowerCase();
+  if(!ans||ans!==u.secA.toLowerCase()){msg.style.color='var(--red)';msg.textContent='Security answer is incorrect.';return;}
+  const np1=document.getElementById('fp-newpw1').value;
+  const np2=document.getElementById('fp-newpw2').value;
+  if(!np1||np1.length<4){msg.style.color='var(--red)';msg.textContent='Password must be at least 4 characters.';return;}
+  if(np1!==np2){msg.style.color='var(--red)';msg.textContent='Passwords do not match.';return;}
+  u.p=np1;
+  msg.style.color='var(--teal)';msg.textContent='Password reset successfully! You can now login.';
+  setTimeout(()=>closeForgot(),2000);
+}
+
+// ════════ NAV ════════
+function nav(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  document.querySelectorAll('#hdr-nav button').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  if(id==='dashboard')renderDashboard();
+  if(id==='meetings'){populateMonthFilter();renderMeetings();}
+  if(id==='actions')renderActionPage();
+  if(id==='participants')renderParticipants();
+  if(id==='settings'){renderUserTable();renderLocList();renderSecuritySection();}
+}
+
+// ════════ MODAL TABS ════════
+function mTab(n){
+  [0,1,2,3].forEach(i=>{
+    document.getElementById('tb'+i).style.display=i===n?'block':'none';
+    const t=document.getElementById('t'+i);
+    t.classList.toggle('active',i===n);
+  });
+  if(n===1)renderKnownChips();
+  if(n===2)renderQP();
+}
+
+// ════════ NEW / EDIT MEETING ════════
+function openNewMeeting(){
+  EM={id:'M'+(DB.nextMId++),participants:[],actionItems:[]};
+  document.getElementById('edit-id').value=EM.id;
+  document.getElementById('modal-title').textContent='New Meeting Record';
+  document.getElementById('m-title').value='';
+  document.getElementById('m-type').value='Faculty Review';
+  document.getElementById('m-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('m-start').value='';document.getElementById('m-end').value='';
+  document.getElementById('m-host').value=me?me.u:'';
+  document.getElementById('m-lang').value='English + Bengali';
+  document.getElementById('m-plat').value='Google Meet';
+  document.getElementById('m-agenda').value='';document.getElementById('m-loc').value='';
+  document.getElementById('min-ed').innerHTML='';
+  document.getElementById('action-list').innerHTML='';
+  document.getElementById('ai-raw').value='';
+  document.getElementById('ai-status').textContent='';
+  populateLocSel(); mTab(0);
+  renderMeetingPs();
+  document.getElementById('modal-bg').classList.add('open');
+}
+function openEditMeeting(id){
+  const m=DB.meetings.find(x=>x.id===id);if(!m)return;
+  closeView();EM=JSON.parse(JSON.stringify(m));
+  document.getElementById('edit-id').value=m.id;
+  document.getElementById('modal-title').textContent='Edit Meeting';
+  document.getElementById('m-title').value=m.title;
+  document.getElementById('m-type').value=m.type;
+  document.getElementById('m-date').value=m.date;
+  document.getElementById('m-start').value=m.start||'';document.getElementById('m-end').value=m.end||'';
+  document.getElementById('m-host').value=m.host;
+  document.getElementById('m-lang').value=m.lang;
+  document.getElementById('m-plat').value=m.platform;
+  document.getElementById('m-agenda').value=m.agenda;
+  document.getElementById('m-loc').value=m.location||'';
+  document.getElementById('min-ed').innerHTML=m.minutes||'';
+  populateLocSel(); mTab(0);
+  renderMeetingPs();renderActionList();
+  document.getElementById('modal-bg').classList.add('open');
+}
+function closeModal(){
+  stopVoice();
+  document.getElementById('modal-bg').classList.remove('open');EM=null;
+}
+function saveMeeting(){
+  const title=document.getElementById('m-title').value.trim();
+  const date=document.getElementById('m-date').value;
+  if(!title||!date){alert('Title and date are required.');mTab(0);return;}
+  const m={
+    id:EM.id,title,date,
+    type:document.getElementById('m-type').value,
+    start:document.getElementById('m-start').value,
+    end:document.getElementById('m-end').value,
+    host:document.getElementById('m-host').value,
+    lang:document.getElementById('m-lang').value,
+    platform:document.getElementById('m-plat').value,
+    agenda:document.getElementById('m-agenda').value,
+    location:document.getElementById('m-loc').value,
+    minutes:document.getElementById('min-ed').innerHTML,
+    participants:EM.participants||[],
+    actionItems:EM.actionItems||[],
+    createdBy:me.u,createdAt:new Date().toISOString()
+  };
+  const idx=DB.meetings.findIndex(x=>x.id===m.id);
+  if(idx>=0)DB.meetings[idx]=m; else DB.meetings.push(m);
+  m.participants.forEach(p=>{
+    let dp=DB.participants.find(x=>x.name.toLowerCase()===p.name.toLowerCase());
+    if(!dp){dp={id:'P'+(DB.nextPId++),name:p.name,role:p.role||'',location:p.location||'',email:'',meetings:[],lastSeen:''};DB.participants.push(dp);}
+    if(!dp.meetings.includes(m.id))dp.meetings.push(m.id);
+    dp.lastSeen=m.date;
+  });
+  closeModal();renderDashboard();renderMeetings();
+}
+
+// ════════ TEMPLATES ════════
+const TEMPLATES={
+  faculty:{
+    agenda:`1. Student progress review – Semester-wise\n2. Assignment submission status\n3. Attendance and discipline issues\n4. Upcoming examination schedule\n5. Faculty concerns and suggestions\n6. Any other matter`,
+    minutes:`<b>Meeting opened at:</b> <br><br><b>Agenda Items Discussed:</b><br>• Student Progress: <br>• Assignment Status: <br>• Attendance Issues: <br>• Examination Schedule: <br><br><b>Key Decisions:</b><br>→ <br><br><b>Action Items:</b><br>→ <br><br><b>Next Meeting:</b> <br><b>Meeting closed at:</b> `
+  },
+  admin:{
+    agenda:`1. Office operations update\n2. Financial matters\n3. HR and staffing\n4. Infrastructure / facilities\n5. Upcoming events\n6. Any other business`,
+    minutes:`<b>বৈঠক শুরু:</b> <br><br><b>আলোচিত বিষয়:</b><br>• কার্যালয় পরিচালনা: <br>• আর্থিক বিষয়: <br>• কর্মী বিষয়: <br><br><b>গৃহীত সিদ্ধান্ত:</b><br>→ <br><br><b>করণীয় কাজ:</b><br>→ <br><br><b>বৈঠক সমাপ্ত:</b> `
+  },
+  training:{
+    agenda:`1. Training objectives\n2. Topics covered\n3. Participant feedback\n4. Skills assessment\n5. Next training schedule\n6. Resources required`,
+    minutes:`<b>Training Session Notes:</b><br><br><b>Topics Covered:</b><br>1. <br>2. <br>3. <br><br><b>Key Learning Points:</b><br>• <br>• <br><br><b>Participant Feedback:</b><br><br><b>Follow-up Required:</b><br>→ `
+  },
+  planning:{
+    agenda:`1. Review of previous meeting action items\n2. Upcoming events and programmes\n3. Target setting\n4. Resource planning\n5. Timeline finalisation\n6. Responsibilities allocation`,
+    minutes:`<b>Planning Meeting Notes:</b><br><br><b>Previous Actions Review:</b><br>✅ Completed: <br>⏳ Pending: <br><br><b>Upcoming Events / Plans:</b><br>• <br>• <br><br><b>Targets Set:</b><br>→ <br><br><b>Responsibilities:</b><br>→ `
+  }
+};
+function loadTemplate(type){
+  const t=TEMPLATES[type];if(!t)return;
+  document.getElementById('m-agenda').value=t.agenda;
+  document.getElementById('m-type').value={faculty:'Faculty Review',admin:'Administrative',training:'Training',planning:'Planning'}[type];
+  alert('Template loaded! Switch to the Minutes tab to see the structure.');
+}
+function insertEngTemplate(){
+  document.getElementById('min-ed').innerHTML=TEMPLATES.faculty.minutes;
+}
+function insertBnTemplate(){
+  document.getElementById('min-ed').innerHTML=TEMPLATES.admin.minutes;
+}
+
+// ════════ QUICK PHRASES ════════
+const QP_EN=[
+  'Meeting opened at','Meeting closed at','It was decided that','Action item:',
+  'Proposed by','Seconded by','All agreed','No objection','Next meeting on',
+  'Pending from last meeting','Will be followed up by','Target date:'
+];
+const QP_BN=[
+  'সিদ্ধান্ত গৃহীত হলো যে','আলোচনায় উঠে আসে','সর্বসম্মতিক্রমে','পরবর্তী বৈঠক',
+  'দায়িত্ব দেওয়া হয়েছে','বৈঠকে উপস্থিত ছিলেন','প্রস্তাব করা হয়','অনুমোদিত হয়েছে'
+];
+function renderQP(){
+  const row=document.getElementById('qp-row');
+  const phrases=[...QP_EN,...QP_BN];
+  row.innerHTML=phrases.map(p=>`<button class="qp-btn" onclick="insertPhrase('${p.replace(/'/g,"\\'")}');">${p}</button>`).join('');
+}
+function insertPhrase(txt){
+  const ed=document.getElementById('min-ed');ed.focus();
+  document.execCommand('insertHTML',false,txt+' ');
+}
+
+// ════════ VOICE TO TEXT ════════
+function toggleVoice(){
+  if(isRecording)stopVoice(); else startVoice();
+}
+function startVoice(){
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechRecognition){
+    alert('Voice input is not supported in this browser. Please use Google Chrome for best results.');return;
+  }
+  recognition=new SpeechRecognition();
+  recognition.lang=document.getElementById('voiceLang').value;
+  recognition.continuous=true;
+  recognition.interimResults=true;
+  let interim='';
+  recognition.onresult=(e)=>{
+    let final='';interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal)final+=e.results[i][0].transcript+' ';
+      else interim+=e.results[i][0].transcript;
+    }
+    if(final){
+      const ed=document.getElementById('min-ed');
+      ed.focus();document.execCommand('insertHTML',false,final);
+    }
+    document.getElementById('liveText').textContent=interim?`Heard: "${interim}"`:'Listening… speak now';
+  };
+  recognition.onerror=(e)=>{
+    if(e.error==='no-speech')return;
+    stopVoice();
+    if(e.error==='not-allowed')alert('Microphone access denied. Please allow microphone in browser settings.');
+  };
+  recognition.onend=()=>{if(isRecording)recognition.start();};
+  recognition.start();
+  isRecording=true;
+  document.getElementById('voiceBtn').classList.add('recording');
+  document.getElementById('vBtnLabel').textContent='🔴 Recording… Tap to Stop';
+  document.getElementById('vBtnSub').textContent='Speak clearly — words appear in minutes automatically';
+  document.getElementById('liveInd').classList.add('on');
+  document.getElementById('vDot').style.background='var(--red)';
+}
+function stopVoice(){
+  if(recognition){try{recognition.stop();}catch(e){}}
+  isRecording=false;
+  document.getElementById('voiceBtn').classList.remove('recording');
+  document.getElementById('vBtnLabel').textContent='🎤 Tap to Speak — Voice to Text';
+  document.getElementById('vBtnSub').textContent='Works in English, বাংলা & हिन्दी — just speak!';
+  document.getElementById('liveInd').classList.remove('on');
+  document.getElementById('vDot').style.background='rgba(255,255,255,.4)';
+}
+
+// ════════ AI SUMMARIZE ════════
+async function aiSummarize(){
+  const raw=document.getElementById('ai-raw').value.trim();
+  if(!raw){alert('Please paste your rough notes first.');return;}
+  const status=document.getElementById('ai-status');
+  const btn=event.target;
+  btn.textContent='⏳ Generating…';btn.disabled=true;
+  status.textContent='🤖 AI is structuring your minutes…';
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        messages:[{role:'user',content:`You are a meeting minutes formatter for Avlon Meet, an educational institution in India. 
+The admin has shared rough notes or a voice transcript from a meeting. 
+Convert these into clean, structured HTML meeting minutes using bullet points and clear sections.
+Use sections: Meeting Summary, Key Points Discussed, Decisions Made, Action Items.
+Keep it concise. Use simple bold tags for section headings. 
+If the notes contain Bengali or Hindi text, preserve them as-is.
+Output ONLY the HTML content, no preamble.
+
+Raw notes:
+${raw}`}]
+      })
+    });
+    const data=await resp.json();
+    if(data.content&&data.content[0]&&data.content[0].text){
+      document.getElementById('min-ed').innerHTML=data.content[0].text;
+      status.textContent='✅ Minutes generated! Review and edit as needed.';
+    } else {
+      status.textContent='⚠ Could not generate. Please check your connection.';
+    }
+  }catch(e){
+    // Fallback: basic formatting without AI
+    const lines=raw.split('\n').filter(l=>l.trim());
+    const html=`<b>Meeting Summary:</b><br><br>`+lines.map(l=>`• ${l.trim()}`).join('<br>')+`<br><br><b>Action Items:</b><br>→ `;
+    document.getElementById('min-ed').innerHTML=html;
+    status.textContent='📝 Formatted without AI (offline mode). Edit as needed.';
+  }
+  btn.textContent='✨ Generate Minutes';btn.disabled=false;
+}
+
+// ════════ EDITOR HELPERS ════════
+function fmt(cmd){document.getElementById('min-ed').focus();document.execCommand(cmd,false,null);}
+function ins(p){document.getElementById('min-ed').focus();document.execCommand('insertHTML',false,'<br>'+p);}
+function insTime(){const t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});document.getElementById('min-ed').focus();document.execCommand('insertHTML',false,`<br><span style="color:#0d7377;font-weight:700">[${t}]</span> `);}
+function clearEditor(){if(confirm('Clear minutes?'))document.getElementById('min-ed').innerHTML='';}
+
+// ════════ PARTICIPANTS ════════
+function addP(){
+  const n=document.getElementById('pn').value.trim();if(!n)return;
+  const r=document.getElementById('pr').value.trim();
+  const l=document.getElementById('pl').value.trim();
+  if(!EM.participants)EM.participants=[];
+  if(EM.participants.find(x=>x.name.toLowerCase()===n.toLowerCase())){alert('Already added.');return;}
+  EM.participants.push({name:n,role:r,location:l});
+  document.getElementById('pn').value='';document.getElementById('pr').value='';document.getElementById('pl').value='';
+  renderMeetingPs();
+}
+function removeP(n){EM.participants=EM.participants.filter(p=>p.name!==n);renderMeetingPs();}
+function renderMeetingPs(){
+  const c=document.getElementById('meeting-ps');
+  const arr=(EM && EM.participants) ? EM.participants : [];
+  document.getElementById('p-cnt').textContent=arr.length;
+  c.innerHTML=arr.length?`<div class="p-chips">${arr.map(p=>`<div class="chip"><div class="chip-av">${p.name[0].toUpperCase()}</div>${p.name}${p.role?` <span style="opacity:.7;font-size:.7rem">(${p.role})</span>`:''}${p.location?` <span style="opacity:.65;font-size:.7rem">– ${p.location}</span>`:''}<span class="chip-rm" onclick="removeP('${p.name.replace(/'/g,"\\'")}')">×</span></div>`).join('')}</div>`:'<p style="color:var(--muted);font-size:.83rem">No participants yet.</p>';
+}
+function renderKnownChips(){
+  document.getElementById('known-chips').innerHTML=DB.participants.slice(0,24).map(p=>`<div onclick="quickAddP('${p.name.replace(/'/g,"\\'")}','${p.role.replace(/'/g,"\\'")}','${p.location.replace(/'/g,"\\'")}')}" style="cursor:pointer;background:#f0f4f8;border:1px solid var(--border);border-radius:16px;padding:3px 10px;font-size:.73rem;font-weight:600;color:var(--ink2);transition:all .15s" onmouseover="this.style.background='var(--teal4)'" onmouseout="this.style.background='#f0f4f8'">${p.name}</div>`).join('');
+}
+function quickAddP(n,r,l){
+  if(!EM.participants)EM.participants=[];
+  if(EM.participants.find(x=>x.name.toLowerCase()===n.toLowerCase()))return;
+  EM.participants.push({name:n,role:r,location:l});renderMeetingPs();
+}
+
+// ════════ ACTION ITEMS ════════
+function addAction(){
+  const t=document.getElementById('at').value.trim();if(!t)return;
+  if(!EM.actionItems)EM.actionItems=[];
+  EM.actionItems.push({id:'AI'+Date.now(),task:t,assignedTo:document.getElementById('aa').value.trim(),dueDate:document.getElementById('ad').value,priority:document.getElementById('ap').value,done:false});
+  document.getElementById('at').value='';document.getElementById('aa').value='';document.getElementById('ad').value='';
+  renderActionList();
+}
+function quickAction(t){document.getElementById('at').value=t;document.getElementById('at').focus();}
+function renderActionList(){
+  const c=document.getElementById('action-list');
+  const arr=(EM && EM.actionItems) ? EM.actionItems : [];
+  c.innerHTML=arr.length?arr.map((a,i)=>`<div class="ai-item ${a.done?'done':''}"><div class="ai-chk" onclick="toggleAI(${i})">${a.done?'✓':''}</div><div style="flex:1"><div class="ai-text" style="font-weight:600;font-size:.85rem">${a.task}</div><div style="font-size:.74rem;color:var(--muted);margin-top:2px">${a.assignedTo?'👤 '+a.assignedTo:''} ${a.dueDate?'📅 '+a.dueDate:''} <span class="badge ${a.priority==='High'?'badge-red':a.priority==='Medium'?'badge-gold':'badge-ink'}" style="font-size:.63rem">${a.priority}</span></div></div><button onclick="removeAI(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer">✕</button></div>`).join(''):'<p style="color:var(--muted);font-size:.83rem">No action items yet. Add tasks above.</p>';
+}
+function toggleAI(i){if(EM){EM.actionItems[i].done=!EM.actionItems[i].done;renderActionList();}}
+function removeAI(i){if(EM){EM.actionItems.splice(i,1);renderActionList();}}
+
+// ════════ DASHBOARD ════════
+function renderDashboard(){
+  const now=new Date(),tm=now.toISOString().slice(0,7);
+  const allA=DB.meetings.flatMap(m=>m.actionItems||[]);
+  document.getElementById('s-total').textContent=DB.meetings.length;
+  document.getElementById('s-month').textContent=DB.meetings.filter(m=>m.date.startsWith(tm)).length;
+  document.getElementById('s-open').textContent=allA.filter(a=>!a.done).length;
+  document.getElementById('s-parts').textContent=DB.participants.length;
+  const rl=document.getElementById('recent-list');
+  const recent=[...DB.meetings].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+  rl.innerHTML=recent.length?recent.map(m=>`<div class="mc" onclick="viewMeeting('${m.id}')">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div class="mc-title">${m.title}</div><div class="mc-meta"><span>📅 ${m.date}</span><span>👥 ${m.participants.length}</span></div></div>
+      <div style="display:flex;gap:5px" onclick="event.stopPropagation()">
+        <button class="btn btn-teal btn-xs" onclick="openEditMeeting('${m.id}')">✏️</button>
+        <button class="btn btn-red btn-xs" onclick="delMeeting('${m.id}')">🗑</button>
+      </div>
+    </div>
+    <div class="mc-badges"><span class="badge badge-teal">${m.type}</span><span class="badge badge-lang">${m.lang}</span></div>
+  </div>`).join(''):'<p style="color:var(--muted);font-size:.85rem;padding:16px;text-align:center">No meetings yet.</p>';
+  const da=document.getElementById('dash-actions');
+  const open=allA.filter(a=>!a.done).slice(0,6);
+  da.innerHTML=open.length?open.map(a=>`<div class="ai-item"><div class="ai-chk" style="pointer-events:none"></div><div style="flex:1"><div style="font-weight:600;font-size:.82rem">${a.task}</div><div style="font-size:.72rem;color:var(--muted)">${a.assignedTo?'👤 '+a.assignedTo:''} ${a.dueDate?'📅 '+a.dueDate:''}</div></div><span class="badge ${a.priority==='High'?'badge-red':a.priority==='Medium'?'badge-gold':'badge-ink'}" style="font-size:.63rem">${a.priority}</span></div>`).join(''):'<p style="color:var(--muted);font-size:.85rem;padding:16px;text-align:center">✅ No open items!</p>';
+}
+
+// ════════ MEETINGS LIST ════════
+function populateMonthFilter(){
+  const s=document.getElementById('flt-month');
+  const months=[...new Set(DB.meetings.map(m=>m.date.slice(0,7)))].sort().reverse();
+  s.innerHTML='<option value="">All Months</option>'+months.map(m=>`<option value="${m}">${new Date(m+'-01').toLocaleDateString('en-IN',{month:'long',year:'numeric'})}</option>`).join('');
+}
+function renderMeetings(){
+  const q=(document.getElementById('srch').value||'').toLowerCase();
+  const fm=document.getElementById('flt-month').value;
+  const fl=document.getElementById('flt-lang').value;
+  const ft=document.getElementById('flt-type').value;
+  let list=[...DB.meetings].sort((a,b)=>b.date.localeCompare(a.date));
+  if(q)list=list.filter(m=>m.title.toLowerCase().includes(q)||m.agenda.toLowerCase().includes(q)||m.host.toLowerCase().includes(q)||m.participants.some(p=>p.name.toLowerCase().includes(q)));
+  if(fm)list=list.filter(m=>m.date.startsWith(fm));
+  if(fl)list=list.filter(m=>m.lang===fl);
+  if(ft)list=list.filter(m=>m.type===ft);
+  const c=document.getElementById('meetings-list');
+  c.innerHTML=list.length?list.map(m=>`<div class="mc" onclick="viewMeeting('${m.id}')">
+    <div style="display:flex;align-items:flex-start;gap:12px">
+      <div style="flex:1">
+        <div class="mc-title">${m.title}</div>
+        <div class="mc-meta"><span>📅 ${m.date}</span>${m.start?`<span>🕐 ${m.start}${m.end?' – '+m.end:''}</span>`:''}<span>🎙 ${m.host}</span><span>👥 ${m.participants.length} people</span>${m.location?`<span>📍 ${m.location}</span>`:''}</div>
+        <div style="font-size:.8rem;color:var(--ink2);margin-top:7px;line-height:1.5">${m.agenda.length>140?m.agenda.slice(0,140)+'…':m.agenda}</div>
+        <div class="mc-badges"><span class="badge badge-teal">${m.type}</span><span class="badge badge-lang">${m.lang}</span><span class="badge badge-ink">${m.platform}</span>${m.actionItems&&m.actionItems.length?`<span class="badge badge-gold">✅ ${m.actionItems.length} tasks</span>`:''}</div>
+      </div>
+      <div style="display:flex;gap:5px;flex-shrink:0" onclick="event.stopPropagation()">
+        <button class="btn btn-outline btn-xs" onclick="viewMeeting('${m.id}')">👁</button>
+        <button class="btn btn-teal btn-xs" onclick="openEditMeeting('${m.id}')">✏️</button>
+        <button class="btn btn-red btn-xs" onclick="delMeeting('${m.id}')">🗑</button>
+      </div>
+    </div>
+  </div>`).join(''):'<div style="text-align:center;padding:40px;color:var(--muted)"><div style="font-size:2.5rem;margin-bottom:10px">📋</div><p>No meetings found.</p></div>';
+}
+function delMeeting(id){if(!confirm('Delete?'))return;DB.meetings=DB.meetings.filter(x=>x.id!==id);renderMeetings();renderDashboard();}
+
+// ════════ VIEW MEETING ════════
+function viewMeeting(id){
+  const m=DB.meetings.find(x=>x.id===id);if(!m)return;
+  document.getElementById('vm-title').textContent=m.title;
+  document.getElementById('vm-meta').textContent=`${m.date}${m.start?' • '+m.start:''}${m.end?' – '+m.end:''} • ${m.platform} • ${m.host}`;
+  document.getElementById('vm-edit-btn').onclick=()=>openEditMeeting(id);
+  document.getElementById('vm-body').innerHTML=`
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px"><span class="badge badge-teal">${m.type}</span><span class="badge badge-lang">${m.lang}</span><span class="badge badge-ink">${m.platform}</span>${m.location?`<span class="badge badge-gold">📍 ${m.location}</span>`:''}</div>
+    <div class="vs"><h4>👥 Participants (${m.participants.length})</h4>${m.participants.length?`<div class="p-chips">${m.participants.map(p=>`<div class="chip"><div class="chip-av">${p.name[0].toUpperCase()}</div>${p.name}${p.role?` <span style="opacity:.7;font-size:.68rem">(${p.role})</span>`:''}${p.location?` <span style="opacity:.65;font-size:.68rem">– ${p.location}</span>`:''}</div>`).join('')}</div>`:'<p style="color:var(--muted);font-size:.82rem">None recorded.</p>'}</div>
+    <div class="vs"><h4>📋 Agenda</h4><div class="vm">${m.agenda||'Not recorded.'}</div></div>
+    ${m.minutes?`<div class="vs"><h4>📝 Minutes</h4><div class="vm">${m.minutes}</div></div>`:''}
+    ${m.actionItems&&m.actionItems.length?`<div class="vs"><h4>✅ Action Items</h4>${m.actionItems.map(a=>`<div class="ai-item ${a.done?'done':''}"><div class="ai-chk" style="pointer-events:none">${a.done?'✓':''}</div><div style="flex:1"><div class="ai-text" style="font-weight:600;font-size:.84rem">${a.task}</div><div style="font-size:.72rem;color:var(--muted)">${a.assignedTo?'👤 '+a.assignedTo:''} ${a.dueDate?'📅 '+a.dueDate:''} <span class="badge ${a.priority==='High'?'badge-red':a.priority==='Medium'?'badge-gold':'badge-ink'}" style="font-size:.62rem">${a.priority}</span></div></div></div>`).join('')}</div>`:''}
+    <div style="font-size:.72rem;color:var(--muted);margin-top:14px;padding-top:10px;border-top:1px solid var(--border)">Recorded by ${m.createdBy} • ${new Date(m.createdAt).toLocaleString('en-IN')}</div>`;
+  document.getElementById('view-bg').style.display='flex';
+}
+function closeView(){document.getElementById('view-bg').style.display='none';}
+
+// ════════ ACTIONS PAGE ════════
+function renderActionPage(){
+  const f=document.getElementById('ai-filter').value;
+  let all=[];
+  DB.meetings.forEach(m=>(m.actionItems||[]).forEach(a=>all.push({...a,mTitle:m.title,mId:m.id,mDate:m.date})));
+  if(f==='open')all=all.filter(a=>!a.done);
+  if(f==='done')all=all.filter(a=>a.done);
+  all.sort((a,b)=>(a.dueDate||'').localeCompare(b.dueDate||''));
+  document.getElementById('actions-tbl').innerHTML=all.length?all.map(a=>`<tr>
+    <td><b>${a.task}</b></td><td>${a.assignedTo||'–'}</td><td>${a.dueDate||'–'}</td>
+    <td style="cursor:pointer;color:var(--teal);text-decoration:underline" onclick="viewMeeting('${a.mId}')">${a.mTitle}</td>
+    <td><span class="badge ${a.priority==='High'?'badge-red':a.priority==='Medium'?'badge-gold':'badge-ink'}">${a.priority}</span></td>
+    <td><span class="badge ${a.done?'badge-green':'badge-red'}">${a.done?'Done':'Open'}</span></td>
+    <td><button class="btn btn-xs ${a.done?'btn-ghost':'btn-teal'}" onclick="toggleGlobalAI('${a.mId}','${a.id}')">${a.done?'Reopen':'✓ Done'}</button></td>
+  </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No items.</td></tr>';
+}
+function toggleGlobalAI(mid,aid){const m=DB.meetings.find(x=>x.id===mid);if(!m)return;const a=m.actionItems.find(x=>x.id===aid);if(a){a.done=!a.done;renderActionPage();renderDashboard();}}
+
+// ════════ PARTICIPANTS ════════
+function renderParticipants(){
+  const q=(document.getElementById('p-srch').value||'').toLowerCase();
+  let list=DB.participants.filter(p=>!q||p.name.toLowerCase().includes(q)||p.role.toLowerCase().includes(q)||p.location.toLowerCase().includes(q));
+  document.getElementById('part-tbl').innerHTML=list.length?list.map((p,i)=>`<tr><td>${i+1}</td><td><b>${p.name}</b></td><td>${p.role||'–'}</td><td>${p.location||'–'}</td><td><span class="badge badge-teal">${p.meetings.length}</span></td><td>${p.lastSeen||'–'}</td><td><button class="btn btn-red btn-xs" onclick="removePart('${p.id}')">✕</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No participants yet.</td></tr>';
+}
+function openAddP(){document.getElementById('ap-n').value='';document.getElementById('ap-r').value='';document.getElementById('ap-l').value='';document.getElementById('ap-e').value='';document.getElementById('ap-bg').style.display='flex';}
+function savePart(){
+  const n=document.getElementById('ap-n').value.trim();if(!n)return;
+  if(DB.participants.find(x=>x.name.toLowerCase()===n.toLowerCase())){alert('Already exists.');return;}
+  DB.participants.push({id:'P'+(DB.nextPId++),name:n,role:document.getElementById('ap-r').value,location:document.getElementById('ap-l').value,email:document.getElementById('ap-e').value,meetings:[],lastSeen:''});
+  document.getElementById('ap-bg').style.display='none';renderParticipants();
+}
+function removePart(id){if(!confirm('Remove?'))return;DB.participants=DB.participants.filter(x=>x.id!==id);renderParticipants();}
+
+// ════════ SETTINGS ════════
+function changePass(){
+  const o=document.getElementById('pw-old').value,n=document.getElementById('pw-new').value,c=document.getElementById('pw-confirm').value;
+  const msg=document.getElementById('pw-msg');
+  if(!o||!n||!c){msg.style.color='var(--red)';msg.textContent='Fill all fields.';return;}
+  if(me.p!==o){msg.style.color='var(--red)';msg.textContent='Wrong current password.';return;}
+  if(n!==c){msg.style.color='var(--red)';msg.textContent='Passwords do not match.';return;}
+  const _u=DB.users.find(x=>x.u===me.u); _u.p=n; me=_u;
+  msg.style.color='var(--teal)';msg.textContent='✅ Updated!';
+}
+function renderUserTable(){document.getElementById('users-tbl').innerHTML=DB.users.map((u,i)=>`<tr><td><b>${u.u}</b></td><td>${u.role}</td><td>${u.u!=='admin'?`<button class="btn btn-red btn-xs" onclick="removeUser(${i})">✕</button>`:'–'}</td></tr>`).join('');}
+function addUser(){const u=document.getElementById('nu-u').value.trim(),p=document.getElementById('nu-p').value;if(!u||!p)return;if(DB.users.find(x=>x.u===u)){alert('Exists.');return;}DB.users.push({u,p,role:'Staff'});document.getElementById('nu-u').value='';document.getElementById('nu-p').value='';renderUserTable();}
+function removeUser(i){if(!confirm('Remove?'))return;DB.users.splice(i,1);renderUserTable();}
+function populateLocSel(){const s=document.getElementById('m-loc');const v=s.value;s.innerHTML='<option value="">-- Select --</option>'+DB.locations.map(l=>`<option${l===v?' selected':''}>${l}</option>`).join('');}
+function renderLocList(){document.getElementById('loc-list').innerHTML=DB.locations.map((l,i)=>`<div style="display:inline-flex;align-items:center;gap:5px;background:var(--teal4);border:1px solid var(--teal3);border-radius:20px;padding:3px 11px;font-size:.8rem;font-weight:600;color:var(--teal)">${l}<span onclick="removeLoc(${i})" style="cursor:pointer;color:var(--red)">×</span></div>`).join('');}
+function addLoc(){const v=document.getElementById('loc-inp').value.trim();if(!v)return;DB.locations.push(v);document.getElementById('loc-inp').value='';renderLocList();populateLocSel();}
+function removeLoc(i){DB.locations.splice(i,1);renderLocList();populateLocSel();}
+
+
+// ════════ SECURITY QUESTION SECTION ════════
+function renderSecuritySection(){
+  const container = document.getElementById('sec-q-area');
+  if(!container||!me)return;
+  const u = DB.users.find(x=>x.u===me.u);
+  container.innerHTML = `
+    <div class="ig"><label>Security Question</label>
+      <select id="sec-q-sel" style="width:100%;border:2px solid var(--border);border-radius:9px;padding:9px 13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;outline:none">
+        <option value="">-- Select a question --</option>
+        <option ${u&&u.secQ==='What is the name of your office city?'?'selected':''}>What is the name of your office city?</option>
+        <option ${u&&u.secQ==='What is the name of your first school?'?'selected':''}>What is the name of your first school?</option>
+        <option ${u&&u.secQ==='What is your mother\'s maiden name?'?'selected':''}>What is your mother's maiden name?</option>
+        <option ${u&&u.secQ==='What was the name of your childhood pet?'?'selected':''}>What was the name of your childhood pet?</option>
+        <option ${u&&u.secQ==='What is your favourite teacher\'s name?'?'selected':''}>What is your favourite teacher's name?</option>
+      </select></div>
+    <div class="ig"><label>Your Answer</label>
+      <input type="text" id="sec-a-inp" value="${u&&u.secA?u.secA:''}" placeholder="Answer (case-insensitive)"/></div>
+    <button class="btn btn-teal btn-sm" onclick="saveSecQuestion()">Save Security Question</button>
+    <p id="sec-msg" style="font-size:.8rem;margin-top:8px"></p>
+  `;
+}
+function saveSecQuestion(){
+  const q=document.getElementById('sec-q-sel').value;
+  const a=document.getElementById('sec-a-inp').value.trim();
+  const msg=document.getElementById('sec-msg');
+  if(!q||!a){msg.style.color='var(--red)';msg.textContent='Please select a question and enter an answer.';return;}
+  const u=DB.users.find(x=>x.u===me.u);
+  u.secQ=q; u.secA=a.toLowerCase();
+  msg.style.color='var(--teal)';msg.textContent='Security question saved!';
+}
+
+// ════════ CSV EXPORTS ════════
+function exportCSV(){
+  const rows=[['ID','Title','Date','Start','End','Type','Language','Platform','Host','Location','Participants','Agenda','Actions','Recorded By']];
+  DB.meetings.forEach(m=>rows.push([m.id,`"${m.title}"`,m.date,m.start,m.end,m.type,m.lang,m.platform,m.host,m.location||'',`"${m.participants.map(p=>p.name).join(', ')}"`,`"${m.agenda.replace(/"/g,'""')}"`,m.actionItems?m.actionItems.length:0,m.createdBy]));
+  dlCSV(rows,'avlon_meetings.csv');
+}
+function exportPartsCSV(){
+  const rows=[['Name','Role','Location','Meetings','Last Seen']];
+  DB.participants.forEach(p=>rows.push([`"${p.name}"`,p.role,p.location,p.meetings.length,p.lastSeen||'']));
+  dlCSV(rows,'avlon_participants.csv');
+}
+function dlCSV(rows,fn){const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.map(r=>r.join(',')).join('\n'));a.download=fn;a.click();}
+
+// ════════ SEED DATA ════════
+DB.participants.push(
+  {id:'P1',name:'Priya Sharma',role:'Faculty',location:'Siliguri Centre',email:'',meetings:['M1'],lastSeen:'2026-03-15'},
+  {id:'P2',name:'Arnab Bose',role:'Faculty',location:'Kolkata Centre',email:'',meetings:['M1','M2'],lastSeen:'2026-03-18'},
+  {id:'P3',name:'Rekha Devi',role:'Principal',location:'Main Office',email:'',meetings:['M1'],lastSeen:'2026-03-15'},
+  {id:'P4',name:'Sudipta Roy',role:'Admin Staff',location:'Asansol Centre',email:'',meetings:['M2'],lastSeen:'2026-03-18'}
+);
+DB.nextPId=5;
+DB.meetings.push({id:'M1',title:'Monthly Faculty Review – March 2026',date:'2026-03-15',start:'10:00',end:'11:30',type:'Faculty Review',lang:'English + Bengali',platform:'Google Meet',host:'admin',location:'Main Office – Siliguri',agenda:'1. Student progress review\n2. Assignment submission status\n3. Upcoming examination schedule\n4. Faculty concerns',minutes:`<b>Meeting opened at:</b> 10:00 AM<br><br><b>Student Progress:</b> Semester 2 on track. 85% assignments submitted at Siliguri.<br>• Priya Sharma জানান যে Siliguri centre ভালো করছে।<br>• Arnab Bose raised attendance issue at Kolkata centre.<br><br><b>Examination Schedule:</b> To be circulated by 20th March.<br><br><b>Decisions:</b><br>→ All assignments to be completed by 28th March<br>→ Exam schedule to all centres by 20th March`,participants:[{name:'Priya Sharma',role:'Faculty',location:'Siliguri Centre'},{name:'Arnab Bose',role:'Faculty',location:'Kolkata Centre'},{name:'Rekha Devi',role:'Principal',location:'Main Office'}],actionItems:[{id:'AI1',task:'Send examination schedule to all centres',assignedTo:'Admin',dueDate:'2026-03-20',priority:'High',done:true},{id:'AI2',task:'Follow up on pending assignments – Siliguri',assignedTo:'Priya Sharma',dueDate:'2026-03-28',priority:'Medium',done:false}],createdBy:'admin',createdAt:'2026-03-15T12:00:00Z'});
+DB.meetings.push({id:'M2',title:'Admission Planning – 2026-27',date:'2026-03-18',start:'14:00',end:'15:00',type:'Planning',lang:'English + Bengali',platform:'Google Meet',host:'admin',location:'Online',agenda:'1. New intake targets\n2. Marketing strategy\n3. Centre-wise allocation\n4. Admission portal update',minutes:`<b>Meeting opened at 2:00 PM</b><br><br>New intake targets discussed for 2026-27.<br>• Each centre: minimum 30 new admissions.<br>• Sudipta Roy Asansol-এর marketing plan উপস্থাপন করেন।<br>• Online admission portal activation: April 1st.<br><br><b>Decisions:</b><br>→ Centre brochures by 25th March<br>→ Portal live by April 1`,participants:[{name:'Arnab Bose',role:'Faculty',location:'Kolkata Centre'},{name:'Sudipta Roy',role:'Admin Staff',location:'Asansol Centre'}],actionItems:[{id:'AI3',task:'Prepare centre-wise admission brochures',assignedTo:'Sudipta Roy',dueDate:'2026-03-25',priority:'High',done:false},{id:'AI4',task:'Activate online admission portal',assignedTo:'Admin',dueDate:'2026-04-01',priority:'High',done:false}],createdBy:'admin',createdAt:'2026-03-18T15:30:00Z'});
+DB.nextMId=3;
+</script>
+</body>
+</html>
